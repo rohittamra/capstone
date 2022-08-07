@@ -1,0 +1,7 @@
+{"type":"FeatureCollection", "features":[
+{"type":"Feature","geometry":{"type":"Point","coordinates":[77.2504918,28.5659628,0]},"properties":{"name":"Point 1"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[77.2440116,28.564287,0]},"properties":{"name":"Point 2"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[77.2467312,28.5628924,0]},"properties":{"name":"Point 3"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[77.2507867,28.563797,0]},"properties":{"name":"Point 4"}},
+{"type":"Feature","geometry":{"type":"Point","coordinates":[77.2487697,28.5618181,0]},"properties":{"name":"Point 5"}}
+]}

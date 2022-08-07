@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Untitled layer</name>
+    <Style id="poly-000000-1200-77-normal">
+      <LineStyle>
+        <color>ff000000</color>
+        <width>1.2</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d000000</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <Style id="poly-000000-1200-77-highlight">
+      <LineStyle>
+        <color>ff000000</color>
+        <width>1.8</width>
+      </LineStyle>
+      <PolyStyle>
+        <color>4d000000</color>
+        <fill>1</fill>
+        <outline>1</outline>
+      </PolyStyle>
+    </Style>
+    <StyleMap id="poly-000000-1200-77">
+      <Pair>
+        <key>normal</key>
+        <styleUrl>#poly-000000-1200-77-normal</styleUrl>
+      </Pair>
+      <Pair>
+        <key>highlight</key>
+        <styleUrl>#poly-000000-1200-77-highlight</styleUrl>
+      </Pair>
+    </StyleMap>
+    <Placemark>
+      <name>Polygon 1</name>
+      <description>MyPolygon</description>
+      <styleUrl>#poly-000000-1200-77</styleUrl>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <tessellate>1</tessellate>
+            <coordinates>
+              
+            77.0503707, 28.5587053,0
+            77.0566288, 28.5675884,0
+            77.0574443, 28.5687945,0
+            77.0589913, 28.5704642,0
+            77.0619289, 28.5696368,0
+            77.0661132 28.5743555,0
+            77.0693168, 28.577378,0
+            77.0738766, 28.5742905,0
+            77.0756447, 28.5733925,0
+            77.077666, 28.5722864,0
+            77.0805027, 28.571103,0
+            77.0831859, 28.5744055,0
+            77.0503707, 28.5587053,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>

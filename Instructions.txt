@@ -1,0 +1,28 @@
+++++++++++++++++++++++++++ RUN MONGODB ++++++++++++++++++++++++++++++++
+Run CMD here
+D:
+cd MongoDB\mongodb-win32-x86_64-2008plus-ssl-3.6.23\mongodb-win32-x86_64-2008plus-ssl-3.6.23\bin
+mongod -dbpath D:\MongoDB\mongodb-win32-x86_64-2008plus-ssl-3.6.23\data\db
+
+RUn mongo db
+
+########### IN CASE OF ERROR ON ABOVE #####################
+netstat -aon | findstr 8080 
+taskkill  /F  /PID <PID>
+
+
+++++++++++++++++++++++++++ RUN PROJECT ++++++++++++++++++++++++++++++++
+
+pip install serverless
+serverless deploy
+
+
+++++++++++++++++++++++++++ RUN POSTMAN ++++++++++++++++++++++++++++++++
+Add these GLOBAL variables below:
+
+API_URL
+TAXI_ID
+USER_ID
+AREA_ID
+
+
