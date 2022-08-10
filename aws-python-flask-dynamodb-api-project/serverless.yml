@@ -12,11 +12,11 @@ provider:
   stage: dev
   vpc:
     securityGroupIds:
-     - sg-0b10f2297bc9b0808 #plugin will add LambdaExecutionSecurityGroup to this list
+     - sg-07c1fa76da3d54e8a
     subnetIds:
-     - subnet-0b636f8e988890d60 # plugin will add the "Application" subnets to this list
+     - subnet-0a7f4cc40107152ad
   environment:
-    DB_URI: mongodb://prashantgl:prashantgl@docdb-2022-08-07-06-24-04.cluster-cu4fuedyqwxy.us-east-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
+    DB_URI: mongodb://root12345:root12345@docdb-2022-08-10-18-06-43.cluster-cfqxwcq1eups.us-east-1.docdb.amazonaws.com:27017/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false
     DB_NAME: taxi_aggregator_selector
     USERS_TABLE: user_registration
     TAXI_TABLE: taxi_registration
