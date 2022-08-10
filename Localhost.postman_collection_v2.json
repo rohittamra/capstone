@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c0ab4adf-6cbf-461e-9765-e5b2f170666f",
+		"_postman_id": "5d91f2e8-2df5-41b7-8265-9ff1a13e3419",
 		"name": "Localhost",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "12010798"
@@ -9,6 +9,33 @@
 		{
 			"name": "User",
 			"item": [
+				{
+					"name": "/user/bulkRegister",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"fname\": \"Prashant\",\r\n    \"secondname\": \"Hiranandani\",\r\n    \"status\": \"active\",\r\n    \"email\": \"prashant.hiranandani@gmail.com\"\r\n},\r\n{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"fname\": \"Pranay\",\r\n    \"secondname\": \"Jain\",\r\n    \"status\": \"active\",\r\n    \"email\": \"p.j@gmail.com\"\r\n},\r\n{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"fname\": \"Ritu\",\r\n    \"secondname\": \"Pandey\",\r\n    \"status\": \"active\",\r\n    \"email\": \"r.p@gmail.com\"\r\n},\r\n{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"fname\": \"Rohit\",\r\n    \"secondname\": \"Tamra\",\r\n    \"status\": \"active\",\r\n    \"email\": \"r.t@gmail.com\"\r\n}\r\n]"
+						},
+						"url": {
+							"raw": "{{API_URI}}/user/bulkRegister",
+							"host": [
+								"{{API_URI}}"
+							],
+							"path": [
+								"user",
+								"bulkRegister"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "/user/register",
 					"request": {
@@ -24,9 +51,9 @@
 							"raw": "{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"fname\": \"Prashant\",\r\n    \"secondname\": \"Hiranandani\",\r\n    \"status\": \"active\",\r\n    \"email\": \"prashant.hiranandani@gmail.com\"\r\n}"
 						},
 						"url": {
-							"raw": "{{API_URI}}/user/register",
+							"raw": "{{API_URL}}/user/register",
 							"host": [
-								"{{API_URI}}"
+								"{{API_URL}}"
 							],
 							"path": [
 								"user",
@@ -136,6 +163,33 @@
 			"name": "Taxi",
 			"item": [
 				{
+					"name": "/taxi/bulkRegister",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"driver_name\": \"Pranay Jain1\",\r\n    \"type\": \"Super Deluxe\",\r\n    \"status\": \"active\",\r\n    \"vehicle_no\" : \"MP 420\"\r\n},\r\n{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"driver_name\": \"Prashant\",\r\n    \"type\": \"Super Deluxe\",\r\n    \"status\": \"active\",\r\n    \"vehicle_no\" : \"MP 420\"\r\n},\r\n{\r\n    \"contact\": \"+91 7014916430\",\r\n    \"driver_name\": \"Ritu\",\r\n    \"type\": \"Super Deluxe\",\r\n    \"status\": \"active\",\r\n    \"vehicle_no\" : \"MP 420\"\r\n}\r\n]"
+						},
+						"url": {
+							"raw": "{{API_URI}}/taxi/bulkRegister",
+							"host": [
+								"{{API_URI}}"
+							],
+							"path": [
+								"taxi",
+								"bulkRegister"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "/taxi/addtaxi",
 					"request": {
 						"method": "POST",
@@ -232,6 +286,36 @@
 		{
 			"name": "Tax-Location",
 			"item": [
+				{
+					"name": "/taxi-location/randomLocation",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n{\r\n\"taxi_id\":\"taxi_9\",\r\n\"location\" : [77.13627,28.59606],\r\n\"status\" : \"active\"\r\n},{\r\n\"taxi_id\":\"taxi_7\",\r\n\"location\" : [77.13627,28.59606],\r\n\"status\" : \"active\"\r\n},\r\n{\r\n\"taxi_id\":\"taxi_6\",\r\n\"location\" : [77.13627,28.59606],\r\n\"status\" : \"active\"\r\n}]"
+						},
+						"url": {
+							"raw": "{{API_URI}}/taxi-location/randomLocation",
+							"host": [
+								"{{API_URI}}"
+							],
+							"path": [
+								"taxi-location",
+								"randomLocation"
+							]
+						}
+					},
+					"response": []
+				},
 				{
 					"name": "/taxi-location/addEditTaxiLocation",
 					"request": {
@@ -454,7 +538,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\"destination\":\"4546,8888\"\t\n\n}"
+							"raw": "{\n\"end_latitude\": 77.16786,\n\"end_longitude\": 28.58698\n}"
 						},
 						"url": {
 							"raw": "{{API_URL}}/trip/endtrip/{{TRIP_ID}}",
