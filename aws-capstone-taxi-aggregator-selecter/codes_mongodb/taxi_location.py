@@ -1,4 +1,7 @@
+import math
+import random
 from decimal import Decimal
+
 
 import pymongo
 
@@ -42,6 +45,7 @@ def editlocation():
             200,
             {'Content-type': "application/json"}
         )
+
     taxiLocation.insert_one(json_loaded)
     return (
         json.dumps({'Message': 'Taxi Location Has been Created'}),
@@ -62,7 +66,6 @@ def addEditTAXI_ID(taxi_id):
     else :
         return (
         json.dumps({'Error': 'Error in update'}), {'Content-type': "application/json"} )
-
 
 def updateLocation(taxi_id,data) :
     query = {"taxi_id": taxi_id}
@@ -95,26 +98,44 @@ def updateStatus(taxi_id,data):
     attribute_updates_dict = {"$set": {'status': json_loaded['status'],'timestamp':datetime.utcnow()}};
     taxiLocation.update_one(query,attribute_updates_dict)
 
-@taxilocationnamespace.route('/getlocationtaxistaxiid/<taxi_id>', methods=['GET'])
+@taxilocationnamespace.route('/getLocationByTaxiId/<taxi_id>', methods=['GET'])
 def getlocationtaxistaxiid(taxi_id):
-    if checkIfExists(taxi_id,"active") == False:
+    if checkIfExists(taxi_id,None) == False:
         return json_response({"message": "Taxi Not Exists"})
     query = {"taxi_id": taxi_id}
     taxiLocation = aggregator_db[taxi_location]
-    location = taxiLocation.find_one(query);
-    location['timestamp'] = location['timestamp'].isoformat()
+    location = taxiLocation.find(query).sort('timestamp',pymongo.DESCENDING);
+    list_cur = list(location)
+    #location['timestamp'] = location['timestamp'].isoformat()
     if location:
-        return json_util.dumps(location)
+        return json_util.dumps(list_cur)
     else:
         return json_response({"message": "Taxi Location not found"}, 404)
 
 def getTaxiByLocation(data):
     json_loaded = json.loads(data)
     taxiLocation = aggregator_db[taxi_location]
+    #taxiLocation.create_index([('location', pymongo.GEOSPHERE)])
+    try:
+        taxiLocation.create_index([('location', "2dsphere")])
+    except:
+        print("An exception occurred")
+    #taxiLocation.createIndex({"location": "2dsphere"})
     distance = json_loaded['distance']
-    query = {"location": {"$near": {"$geometry": {"type": "Point", "coordinates": json_loaded['location']},
-                                    "$maxDistance": distance}},"status":"active"};
-    cursor = taxiLocation.find(query);
+    #query = {"location": {"$near": {"$geometry": {"type": "Point", "coordinates": json_loaded['location']},
+     #                               "$maxDistance": distance}},"status":"active"};
+    query = [
+        {
+            "$geoNear": {
+                "near": {"type": "Point", "coordinates": json_loaded['location']},
+                "distanceField": "distance",
+                "query": {'status': 'active'},
+                "spherical": "true",
+                "key": "location",
+                "maxDistance":distance
+            }
+        }]
+    cursor = taxiLocation.aggregate(query);
     return cursor;
 
 def json_response(data, response_code=200):
@@ -175,8 +196,6 @@ def randomLocation():
             200,
             {'Content-type': "application/json"}
         )
-
-
 
 def initiateLat(lat,dis):
     earth = 6378.137

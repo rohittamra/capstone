@@ -117,7 +117,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/aws-capstone-taxi-aggregator-selecter/dev/1660414375726-2022-08-13T18:12:55.726Z/aws-capstone-taxi-aggregator-selecter.zip"
+                "S3Key": "serverless/aws-capstone-taxi-aggregator-selecter/dev/1660542456374-2022-08-15T05:47:36.374Z/aws-capstone-taxi-aggregator-selecter.zip"
               },
               "Handler": "wsgi_handler.handler",
               "Runtime": "python3.8",
@@ -150,14 +150,14 @@
               "ApiLogGroup"
             ]
           },
-          "ApiLambdaVersionEl2SyPCZ9KZnn1VieZnPmsxX7hA3PnAS70QTd3rEGo": {
+          "ApiLambdaVersion9nZfOBJfUFppqefcRQqs2WSy6RObZpq8Ba5q5a1nZE": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "mPBF1o4DVk380Jq0+Ksrt1DvUPvQQ8GXQGs89yNqE10="
+              "CodeSha256": "thFBZEk1P8hSS6Pd99cxTsEm2iIvgbEsYp5rvaA4RnU="
             }
           },
           "HttpApi": {
@@ -265,7 +265,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersionEl2SyPCZ9KZnn1VieZnPmsxX7hA3PnAS70QTd3rEGo"
+              "Ref": "ApiLambdaVersion9nZfOBJfUFppqefcRQqs2WSy6RObZpq8Ba5q5a1nZE"
             },
             "Export": {
               "Name": "sls-aws-capstone-taxi-aggregator-selecter-dev-ApiLambdaFunctionQualifiedArn"
@@ -415,7 +415,7 @@
         "timeout": 6,
         "runtime": "python3.8",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersionEl2SyPCZ9KZnn1VieZnPmsxX7hA3PnAS70QTd3rEGo"
+        "versionLogicalId": "ApiLambdaVersion9nZfOBJfUFppqefcRQqs2WSy6RObZpq8Ba5q5a1nZE"
       }
     },
     "configValidationMode": "warn",
@@ -438,10 +438,10 @@
     },
     "layers": {},
     "isDashboardMonitoringPreconfigured": false,
-    "artifact": "D:\\Prashant Documents\\capstone-project\\aws-capstone-taxi-aggregator-selecter\\.serverless\\aws-capstone-taxi-aggregator-selecter.zip"
+    "artifact": "D:\\Prashant Documents\\capstone-project\\final_From_git_last\\capstone\\aws-capstone-taxi-aggregator-selecter\\.serverless\\aws-capstone-taxi-aggregator-selecter.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/aws-capstone-taxi-aggregator-selecter/dev/1660414375726-2022-08-13T18:12:55.726Z",
+    "artifactDirectoryName": "serverless/aws-capstone-taxi-aggregator-selecter/dev/1660542456374-2022-08-15T05:47:36.374Z",
     "artifact": "aws-capstone-taxi-aggregator-selecter.zip"
   }
 }

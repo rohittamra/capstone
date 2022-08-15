@@ -23,7 +23,7 @@ aggregator_db = client[aggregator_db]
 @taxinamespace.route('/getalltaxis', methods=['GET'])
 def getalltaxis():
     taxis = aggregator_db[taxi_table]
-    cursor = taxis.find({});
+    cursor = taxis.find({}).sort('timestamp',pymongo.DESCENDING);
     list_cur = list(cursor)
     return (
         json_util.dumps(list_cur),
@@ -41,8 +41,9 @@ def edittaxitaxiid(taxi_id):
     attribute_updates_dict = {"$set": {
             'contact': json_loaded["contact"],
             'driver_name': json_loaded["driver_name"],
-            'status': json_loaded["status"],
-            'type': json_loaded["type"]
+            'type': json_loaded["type"],
+            'vehicle_no': json_loaded["vehicle_no"],
+             'timestamp': datetime.utcnow()
             }};
     # print(attribute_updates_dict)
     taxis.update_one(query, attribute_updates_dict)
@@ -52,6 +53,7 @@ def edittaxitaxiid(taxi_id):
 def addtaxi():
     json_loaded = json.loads(request.data)
     json_loaded.update({'taxi_id': "taxi_" + getAutoId(taxi_table)})
+    json_loaded.update({'timestamp': datetime.utcnow()})
     taxi = aggregator_db[taxi_table]
 
     #users = aggregator_db[user_table]
@@ -62,15 +64,16 @@ def addtaxi():
         {'Content-type': "application/json"}
     )
 
-@taxinamespace.route('/deletetaxi/<taxi_id>', methods=['POST'])
-def deletetaxitaxiid(taxi_id):
+@taxinamespace.route('/changeStatus/<taxi_id>', methods=['POST'])
+def changeStatus(taxi_id):
     if checkIfExists(taxi_id) == False:
         return json_response({"message": "Taxi Not Exists"})
+    json_loaded = json.loads(request.data)
     query = {"taxi_id": taxi_id}
     taxi = aggregator_db[taxi_table]
-    attribute_updates_dict = {"$set": {'status': 'Inactive'}};
+    attribute_updates_dict = {"$set": {'status': json_loaded['status'],'timestamp': datetime.utcnow()}};
     taxi.update_one(query, attribute_updates_dict)
-    return json_response({"message": "taxi marked Unavailable"})
+    return json_response({"message": "Taxi Status Changed !"})
 
 def tripTaxiOn(taxi_id,is_tripped):
     if checkIfExists(taxi_id,"active") == False:
@@ -94,6 +97,19 @@ def checkIfExists(taxi_id,status = None):
     else:
         return True
 
+@taxinamespace.route('/getspecifictaxi/<taxi_id>', methods=['GET'])
+def getspecifictaxi(taxi_id):
+    if checkIfExists(taxi_id,None) == False:
+        return json_response({"message": "Taxi Does Not Exists"})
+    taxi = aggregator_db[taxi_table]
+    taxi_info = taxi.find_one({"taxi_id":taxi_id});
+    return (
+        json_util.dumps(taxi_info),
+        200,
+        {'Content-type': "application/json"}
+    )
+
+
 def json_response(data, response_code=200):
     return json.dumps(data), response_code, {'Content-Type': 'application/json'}
 
@@ -104,6 +120,8 @@ def bulkRegister():
     json_loaded=json.loads(request.data)
     for taxi in json_loaded :
         taxi.update({'taxi_id': "taxi_"+getAutoId(taxi_table)})
+        taxi.update({'timestamp': datetime.utcnow()})
+
     users = aggregator_db[taxi_table]
     users.insert_many(json_loaded)
     return (

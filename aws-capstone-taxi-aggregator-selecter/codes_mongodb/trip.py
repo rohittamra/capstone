@@ -9,6 +9,8 @@ import os
 from flask import Blueprint
 from datetime import datetime
 
+#from latlon import LatLon, Longitude, Latitude
+
 from codes_mongodb.helper import getAutoId
 from codes_mongodb.taxi import tripTaxiOn,checkIfExists
 from codes_mongodb.user import checkIfUserExists
@@ -29,11 +31,13 @@ aggregator_db = client[aggregator_db]
 @tripnamespace.route('/getalltrips', methods=['GET'])
 def getAllTrips():
     trips = aggregator_db[trip_table]
-    cursor = trips.find({});
+    cursor = trips.find({}).sort([('dest_timestamp',pymongo.DESCENDING)
+                                     ,('origin_timestamp',pymongo.DESCENDING)]);
     list_cur = list(cursor)
     for cur in list_cur:
         cur['origin_timestamp'] = cur['origin_timestamp'].isoformat()
-        cur['dest_timestamp'] = cur['dest_timestamp'].isoformat()
+        if cur['dest_timestamp'] is not None :
+            cur['dest_timestamp'] = cur['dest_timestamp'].isoformat()
     return (
         json_util.dumps(list_cur),
         200,
@@ -48,7 +52,8 @@ def getTrip(trip_id):
     trips = aggregator_db[trip_table]
     trip = trips.find_one({"trip_id": trip_id});
     trip['origin_timestamp'] = trip['origin_timestamp'].isoformat()
-    trip['dest_timestamp'] = trip['dest_timestamp'].isoformat()
+    if trip['dest_timestamp'] is not None:
+        trip['dest_timestamp'] = trip['dest_timestamp'].isoformat()
     return (
         json_util.dumps(trip),
         200,
@@ -57,15 +62,16 @@ def getTrip(trip_id):
 
 
 @tripnamespace.route('/getTripsByTaxiId/<taxi_id>', methods=['GET'])
-def getTripByTaxiId(taxi_id):
+def getTripsByTaxiId(taxi_id):
     if checkIfExists(taxi_id) == False:
         return json_response({"message": "Taxi Does Not Exists"})
     trips = aggregator_db[trip_table]
-    trip = trips.find_one({"taxi_id": taxi_id});
-    trip['origin_timestamp'] = trip['origin_timestamp'].isoformat()
-    trip['dest_timestamp'] = trip['dest_timestamp'].isoformat()
+    trip = trips.find({"taxi_id": taxi_id});
+    list_cur = list(trip);
+    #trip['origin_timestamp'] = trip['origin_timestamp'].isoformat()
+    #trip['dest_timestamp'] = trip['dest_timestamp'].isoformat()
     return (
-        json_util.dumps(trip),
+        json_util.dumps(list_cur),
         200,
         {'Content-type': "application/json"}
     )
@@ -76,11 +82,12 @@ def getTripByUser(user_id):
     if checkIfUserExists(user_id, "active") == False:
         return json_response({"message": "User Does Not Exists"})
     trips = aggregator_db[trip_table]
-    trip = trips.find_one({"user_id": user_id});
-    trip['origin_timestamp'] = trip['origin_timestamp'].isoformat()
-    trip['dest_timestamp'] = trip['dest_timestamp'].isoformat()
+    trip = trips.find({"user_id": user_id});
+    list_cur = list(trip);
+    #trip['origin_timestamp'] = trip['origin_timestamp'].isoformat()
+    #trip['dest_timestamp'] = trip['dest_timestamp'].isoformat()
     return (
-        json_util.dumps(trip),
+        json_util.dumps(list_cur),
         200,
         {'Content-type': "application/json"}
     )
@@ -106,10 +113,18 @@ def register():
         'type': "Point",
         'coordinates': json_loaded['origin']
     }
+
     json_loaded['origin_timestamp'] = datetime.utcnow();
     json_loaded['status'] = 'active';
     json_loaded['destination'] = None;
     json_loaded['dest_timestamp'] = None;
+    try:
+        trip.create_index([('origin', "2dsphere")])
+    except:
+        print("An exception occurred")
+
+    #trip.create_index([('origin', pymongo.GEOSPHERE)])
+    #trip.createIndex({"origin": "2dsphere"})
     res = trip.insert_one(json_loaded)
     tripTaxiOn(json_loaded["taxi_id"], 1);
     # updateStatus(json_loaded["taxi_id"],{"status":"unavailable"})
@@ -120,45 +135,55 @@ def register():
     )
 
 
-# @tripnamespace.route('/endtrip/<trip_id>', methods=['PUT'])
-# def editTrip(trip_id):
-#     if checkTripIfExists(trip_id,"active") == False:
-#         return json_response({"message": "Trip Does Not Exists"})
-#     query = {"trip_id": trip_id,'status' : 'active'}
-#     json_loaded = json.loads(request.data)
-#     tripTable = aggregator_db[trip_table]
-#     trip_details = tripTable.find_one(query)
-#     trips = aggregator_db[trip_table]
-#     trip = trips.find_one({"trip_id":trip_id});
-#     lat=trip["origin"]["coordinates"][0]
-#     lon=trip["origin"]["coordinates"][1]
-#     origin = LatLon(Latitude(lat), Longitude(lon)) # Location of Palmyra Atoll
-#     end_lat=json_loaded["end_latitude"]
-#     end_long=json_loaded["end_longitude"]
-#     destination = LatLon(Latitude(end_lat), Longitude(end_long))
-#     distance = origin.distance(destination, ellipse = 'sphere')
-#     # initial_heading = origin.heading_initial(destination)# WGS84 distance in km
-#     print(distance)
-#     # hnl = origin.offset(initial_heading, distance) # Reconstruct Honolulu based on offset from Palmyra
-#     # print(hnl.to_string('D'))
-
-#     attribute_updates_dict = {"$set": {
-#          "destination": {
-#             'type': "Point",
-#             'coordinates': [end_lat,end_long]
-#             },
-#          "distance": distance,
-#         "dest_timestamp":datetime.utcnow(),
-#         "status" : "completed"
-#     }
-#     };
-#     tripTable.update_one(query,attribute_updates_dict)
-#     tripTaxiOn(trip_details['taxi_id'],0)
-#     return (
-#         json.dumps({'Message': 'Trip Has been completed !!'}),
-#         200,
-#         {'Content-type': "application/json"}
-#     )
+@tripnamespace.route('/endtrip/<trip_id>', methods=['PUT'])
+def editTrip(trip_id):
+    if checkTripIfExists(trip_id,"active") == False:
+        return json_response({"message": "Trip Does Not Exists"})
+    distance_travelled = 0;
+    taxi_id = '';
+    json_loaded = json.loads(request.data)
+    end_lat = json_loaded["end_latitude"]
+    end_long = json_loaded["end_longitude"]
+    query = [
+        {
+    "$geoNear": {
+        "near": {"type": "Point", "coordinates": [end_lat, end_long]},
+        "distanceField": "distancetravelled",
+        "query": {"trip_id": trip_id,'status' : 'active'},
+        "spherical": "true",
+        "key":"origin"
+    }
+    }]
+    tripTable = aggregator_db[trip_table]
+    trip = tripTable.aggregate(query)
+    for t in trip :
+       distance_travelled  =  t['distancetravelled'];
+       taxi_id = t["taxi_id"];
+    attribute_updates_dict = {"$set": {
+         "destination": {
+            'type': "Point",
+            'coordinates': [end_lat,end_long]
+            },
+         "distance": distance_travelled,
+        "dest_timestamp":datetime.utcnow(),
+        "status" : "completed"
+    }
+    };
+    try:
+        tripTable.create_index([('destination', "2dsphere")])
+    except:
+        print("An exception occurred")
+    query = {"trip_id": trip_id,'status' : 'active'};
+    tripTable.update_one(query,attribute_updates_dict)
+    tripTaxiOn(taxi_id,0)
+    query = {"trip_id": trip_id}
+    trip = tripTable.find_one(query)
+    trip.update({'message': 'Trip Has been completed !!'})
+    return (
+        json_util.dumps(trip),
+        200,
+        {'Content-type': "application/json"}
+    )
 
 @tripnamespace.route('/canceltrip/<trip_id>', methods=['GET'])
 def deleteTrip(trip_id):

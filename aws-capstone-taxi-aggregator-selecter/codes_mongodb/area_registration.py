@@ -24,7 +24,7 @@ aggregator_db = client[aggregator_db]
 @areanamespace.route('/listareas', methods=['GET'])
 def getallareas():
     areas = aggregator_db[area_table]
-    cursor = areas.find({});
+    cursor = areas.find({}).sort('timestamp',pymongo.DESCENDING);
     list_cur = list(cursor)
     for cur in list_cur:
         cur['timestamp'] = cur['timestamp'].isoformat()
@@ -95,6 +95,11 @@ def checkArea(data):
     area = aggregator_db[area_table]
     query = {"polygons": {"$geoIntersects":
                                {"$geometry": {"type": "Point","coordinates": json_loaded['location']}}},"status":"active"};
+    try:
+        area.create_index([('polygons', "2dsphere")])
+    except:
+        print("An exception occurred")
+    #area.create_index({"polygons": "2dsphere"})
 
     cursor = area.count(query);
     return (cursor > 0)

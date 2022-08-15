@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from bson import json_util
 from flask import request
 import json
@@ -22,7 +24,7 @@ aggregator_db = client[aggregator_db]
 @usernamespace.route('/getallusers', methods=['GET'])
 def getallusers():
     users = aggregator_db[user_table]
-    cursor = users.find({});
+    cursor = users.find({}).sort('timestamp',pymongo.DESCENDING);
     list_cur = list(cursor)
     return (
             json_util.dumps(list_cur),
@@ -32,7 +34,7 @@ def getallusers():
 
 @usernamespace.route('/getspecificuser/<user_id>', methods=['GET'])
 def getspecificuser(user_id):
-    if checkIfUserExists(user_id,"active") == False:
+    if checkIfUserExists(user_id,None) == False:
         return json_response({"message": "User Does Not Exists"})
     users = aggregator_db[user_table]
     user = users.find_one({"user_id":user_id});
@@ -48,23 +50,25 @@ def register():
     json_loaded.update({'user_id': "user_"+getAutoId(user_table)})
     print("--------------------------calling register api---------------------------------")
     users = aggregator_db[user_table]
-    json_converted=bytes(json.dumps(json_loaded), 'utf-8')
-    users.insert_one(json.loads(json_converted))
+    #json_converted=bytes(json.dumps(json_loaded), 'utf-8')
+    json_loaded.update({'timestamp': datetime.utcnow()})
+    users.insert_one(json_loaded)
     return (
         json.dumps({'Message': 'user entry created'}),
         200,
         {'Content-type': "application/json"}
     )
 
-@usernamespace.route('/deleteuser/<user_id>', methods=['POST'])
-def deleteuseruserid(user_id):
-    if checkIfUserExists(user_id) == False:
+@usernamespace.route('/changeStatus/<user_id>', methods=['POST'])
+def changeStatus(user_id):
+    if checkIfUserExists(user_id,None) == False:
         return json_response({"message": "User Not Available"})
+    json_loaded = json.loads(request.data)
     query = {"user_id": user_id}
     users = aggregator_db[user_table]
-    attribute_updates_dict = {"$set": {'status': 'Inactive'}};
+    attribute_updates_dict = {"$set": {'status': json_loaded['status'],'timestamp': datetime.utcnow()}};
     users.update_one(query, attribute_updates_dict)
-    return json_response({"message": "user marked Unavailable"})
+    return json_response({"message": "user status changed"})
 
 @usernamespace.route('/booktrip/<user_id>', methods=['POST'])
 def bookTaxi(user_id):
@@ -105,6 +109,7 @@ def bulkRegister():
     json_loaded=json.loads(request.data)
     for user in json_loaded :
         user.update({'user_id': "user_"+getAutoId(user_table)})
+        user.update({'timestamp': datetime.utcnow()})
     users = aggregator_db[user_table]
     users.insert_many(json_loaded)
     return (
